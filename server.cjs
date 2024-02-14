@@ -3,6 +3,8 @@ const cors = require('cors')
 const express = require('express')
 const mongoose = require('mongoose')
 
+const {ObjectId}=require('mongoose')
+
 const {Restaurant,Users} = require('./schema.cjs')
 
 const app = express()
@@ -24,11 +26,15 @@ async function connectToDb(){
   }
 }
 connectToDb()
-/*4 end points created:
-  add-restaurant 
-  get-restaurant-details
-  create-new-user
-  validate-user*/
+/*End points created:
+
+  add-restaurant : post
+  get-restaurant-details :get
+  create-new-user :post
+  update-restaurant-detail :post
+  delete-restaurant-detail : post
+  validate-user :post
+  */
 
 app.post('/add-restaurant',async function(request,response){
      try{
@@ -63,6 +69,33 @@ app.get('/get-restaurant-details',async function(request,response){
         "error":error
     })
   }
+})
+
+app.delete('/delete-restaurant-detail/:id',async function(request,response){
+    
+      try {
+        const restaurant = await Restaurant.findById(request.params.id)
+        if(restaurant) {
+            await Restaurant.findByIdAndDelete(request.params.id)
+            response.status(200).json({
+                "status" : "success",
+                "message" : "deleted successfully"
+            })
+        } else { //restaurant : null
+            response.status(404).json({
+                "status" : "failure",
+                "message" : "entry not found"
+            })
+        }
+    }catch(error){
+      response.status().json({
+        "status":"failed",
+        "message":"could not delete",
+        "error":error
+
+      })
+
+    }
 })
 
 app.post('/create-new-user',async function(request,response){
